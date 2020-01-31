@@ -11,11 +11,22 @@ const ColorList = ({ colors, updateColors }) => {
   console.log(colors);
   const [editing, setEditing] = useState(false);
   const [colorToEdit, setColorToEdit] = useState(initialColor);
+  const [addColor, setAddColor] = useState(false);
+  const [newColor, setNewColor] = useState({
+    name: "",
+    code: {
+      hex: ''
+    }
+  });
 
   const editColor = color => {
     setEditing(true);
     setColorToEdit(color);
-    console.log(colorToEdit)
+    console.log(colorToEdit);
+  };
+
+  const addNewColor = () => {
+    setAddColor(true);
   };
 
   const saveEdit = e => {
@@ -23,29 +34,43 @@ const ColorList = ({ colors, updateColors }) => {
     // Make a put request to save your updated color
     // think about where will you get the id from...
     // where is is saved right now?
-    
+
     axiosWithAuth()
       .put(`http://localhost:5000/api/colors/${colorToEdit.id}`, colorToEdit)
-      .then(res => console.log(res)
-      // colors.map(color => {
-      //   console.log(color, 'color in map')
-      //   if (color.id === res.data.id) {
-      //     colors.splice(color, res.data)
-      //   } else {
-      //     return color;
-      //   }
-      // })
+      .then(
+        res => console.log(res)
+        // colors.map(color => {
+        //   console.log(color, 'color in map')
+        //   if (color.id === res.data.id) {
+        //     colors.splice(color, res.data)
+        //   } else {
+        //     return color;
+        //   }
+        // })
       )
-      .catch(err => console.log(err))
+      .catch(err => console.log(err));
   };
 
   const deleteColor = color => {
     // make a delete request to delete this color
-    console.log(color)
+    console.log(color);
     axiosWithAuth()
       .delete(`http://localhost:5000/api/colors/${color.id}`)
       .then(res => updateColors(colors.filter(color => color.id !== res.data)))
-      .catch(err => console.log(err))
+      .catch(err => console.log(err));
+  };
+
+  const createColor = e => {
+    e.preventDefault();
+    axiosWithAuth()
+      .post(`http://localhost:5000/api/colors`, newColor)
+      .then(res => console.log(res))
+      .catch(err => console.log(err));
+  };
+
+  const handleChange = e => {
+    setNewColor({ ...newColor, [e.target.name]: e.target.value });
+    console.log(newColor)
   };
 
   return (
@@ -58,12 +83,14 @@ const ColorList = ({ colors, updateColors }) => {
         {colors.map(color => (
           <li key={color.color} onClick={() => editColor(color)}>
             <span>
-              <span className="delete" onClick={e => {
-                    e.stopPropagation();
-                    deleteColor(color)
-                  }
-                }>
-                  x
+              <span
+                className="delete"
+                onClick={e => {
+                  e.stopPropagation();
+                  deleteColor(color);
+                }}
+              >
+                x
               </span>{" "}
               {color.color}
             </span>
@@ -74,6 +101,7 @@ const ColorList = ({ colors, updateColors }) => {
           </li>
         ))}
       </ul>
+
       {editing && (
         <form onSubmit={saveEdit}>
           <legend>edit color</legend>
@@ -104,8 +132,35 @@ const ColorList = ({ colors, updateColors }) => {
           </div>
         </form>
       )}
-      <div className="spacer" />
+      <button onClick={addNewColor}>Add Color</button>
+      {/* <div className="spacer" /> */}
       {/* stretch - build another form here to add a color */}
+      {addColor && (
+        <form onSubmit={createColor}>
+          <label>
+            color name:
+            <input
+              type="text"
+              name="name"
+              value={newColor.name}
+              onChange={handleChange}
+            />
+          </label>
+          <label>
+            hex code:
+            <input
+              type="text"
+              name=''
+              value={newColor.code.hex}
+              onChange={handleChange}
+            />
+          </label>
+          <div className="button-row">
+            <button type="submit">save</button>
+            <button onClick={() => setAddColor(false)}>cancel</button>
+          </div>
+        </form>
+      )}
     </div>
   );
 };
