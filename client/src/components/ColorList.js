@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { axiosWithAuth } from "../utils/axiosWithAuth";
 
 const initialColor = {
   color: "",
@@ -14,22 +15,45 @@ const ColorList = ({ colors, updateColors }) => {
   const editColor = color => {
     setEditing(true);
     setColorToEdit(color);
+    console.log(colorToEdit)
   };
 
   const saveEdit = e => {
-    e.preventDefault();
+    // e.preventDefault();
     // Make a put request to save your updated color
     // think about where will you get the id from...
     // where is is saved right now?
+    
+    axiosWithAuth()
+      .put(`http://localhost:5000/api/colors/${colorToEdit.id}`, colorToEdit)
+      .then(res => console.log(res)
+      // colors.map(color => {
+      //   console.log(color, 'color in map')
+      //   if (color.id === res.data.id) {
+      //     colors.splice(color, res.data)
+      //   } else {
+      //     return color;
+      //   }
+      // })
+      )
+      .catch(err => console.log(err))
   };
 
   const deleteColor = color => {
     // make a delete request to delete this color
+    console.log(color)
+    axiosWithAuth()
+      .delete(`http://localhost:5000/api/colors/${color.id}`)
+      .then(res => updateColors(colors.filter(color => color.id !== res.data)))
+      .catch(err => console.log(err))
   };
 
   return (
     <div className="colors-wrap">
       <p>colors</p>
+      {colors.length === 0 && (
+        <p>You Fool! There are no colors! Look what your hubris has wrought!</p>
+      )}
       <ul>
         {colors.map(color => (
           <li key={color.color} onClick={() => editColor(color)}>
