@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+// import axios from "axios";
 import { axiosWithAuth } from "../utils/axiosWithAuth";
 
 const initialColor = {
@@ -64,7 +64,7 @@ const ColorList = ({ colors, updateColors }) => {
     e.preventDefault();
     axiosWithAuth()
       .post(`http://localhost:5000/api/colors`, newColor)
-      .then(res => console.log(res))
+      .then(res => console.log(res), setAddColor(false))
       .catch(err => console.log(err));
   };
 
@@ -72,6 +72,13 @@ const ColorList = ({ colors, updateColors }) => {
     setNewColor({ ...newColor, [e.target.name]: e.target.value });
     console.log(newColor)
   };
+
+  const test = newColor.code.hex;
+  console.log(test)
+
+
+  
+  
 
   return (
     <div className="colors-wrap">
@@ -132,11 +139,14 @@ const ColorList = ({ colors, updateColors }) => {
           </div>
         </form>
       )}
-      <button onClick={addNewColor}>Add Color</button>
+      {!addColor && (
+        <button className='add-btn' onClick={addNewColor}>+</button>
+      )}
       {/* <div className="spacer" /> */}
       {/* stretch - build another form here to add a color */}
       {addColor && (
         <form onSubmit={createColor}>
+          <legend>add color</legend>
           <label>
             color name:
             <input
@@ -150,7 +160,7 @@ const ColorList = ({ colors, updateColors }) => {
             hex code:
             <input
               type="text"
-              name=''
+              name={newColor.code.hex}
               value={newColor.code.hex}
               onChange={handleChange}
             />
